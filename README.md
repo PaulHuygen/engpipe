@@ -1,4 +1,7 @@
 engpipe
 =======
 
-Standard english NLP pipeline
+Standard english NLP pipeline.
+
+In status nascendi
+
