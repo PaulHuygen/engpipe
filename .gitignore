@@ -7,7 +7,9 @@
 *.tgz
 snapshots
 bin
+env
 modules
+nuweb-1.58
 nuweb/auto/
 nuweb/*.aux
 nuweb/*.bbl

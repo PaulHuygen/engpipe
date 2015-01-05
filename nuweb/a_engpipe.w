@@ -52,14 +52,18 @@ Table~\ref{tab:modulelist}
 \begin{table}[hbtp]
   \centering
   \begin{footnotesize}
-    \begin{tabular}{lllll}
-     \textbf{module}      & \textbf{directory} & \textbf{source} & \textbf{script} & \textbf{Details} \\
-@%        Tokenizer          & \verb|m4_tokenizerdir| & Github    &   m4_tokenizerscript  &               \\
-       Tokenizer          & \verb|m4_tokenizerdir| & \EHU{}    & m4_tokenizerscript  &               \\
-@%       morphosyntactic parser     & \verb|m4_morphpardir|  & Github    & \verb|m4_morphparscript|   &   \\
+    \begin{tabular}{llllll}
+     \textbf{module}      & \textbf{directory} & \textbf{source} & \textbf{script} & \textbf{succ.}   & \textbf{Details} \\
+@%        Tokenizer          & \verb|m4_tokenizerdir| & Github    &   m4_tokenizerscript & Y  &               \\
+       Tokenizer          & \verb|m4_tokenizerdir| & Snapshot     & m4_tokenizerscript & Y & \ref{sec:installtokenizer} \\
+       Pos tagger         & \verb|m4_postaggerdir| & Snapshot     & m4_postaggerscript & Y & \ref{sec:pos-tagger}       \\
+       MW tagger          & \verb|m4_mwtaggerdir|  & Snapshot     & m4_mwtaggerscript  & Y & \ref{sec:mw-tagger}        \\
+       \textsc{nerc}      & \verb|m4_jardir|       & \textsc{tar} & m4_nercscript      & Y & \ref{sec:nerc}             \\
+       Opinion miner      & \verb|m4_opinisrc|     & Snapshot     & m4_opiniscript     & N & \ref{sec:opiniscript}      \\  
+       Const. parser      & \verb|m4_parsedir|     & Snapshot     & m4_cparsescript    & Y & \ref{sec:constparser}      \\
+@%       morphosyntactic parser     & \verb|m4_morphpardir|  & Github   & \verb|m4_morphparscript|   &    \\
 @%       alpinohack         & \verb|clean_hack|      & This doc. &  m4_alpinohackscript  & \footnote{not a  module, but an
 @%                                                                                          encoding hack} \\
-@%       \textsc{nerc}       & \verb|m4_jardir|      & \textsc{tar} & m4_nercscript     & \\
 @%       \textsc{wsd}       & \verb|m4_wsddir|       & \textsc{tar} & m4_wsdscript      & \\
 @%       Onto               & \verb|m4_ontodir|      & \textsc{tar} & m4_ontoscript     & \\
 @%       Heidel             & \verb|m4_heideldir|    & Github       & m4_heidelscript   & \\
@@ -67,7 +71,6 @@ Table~\ref{tab:modulelist}
 @%       \textsc{ned}       & \verb|m4_neddir|       & \EHU{}       & m4_nedscript      & \\
 @%       Nom. coref         & \verb|m4_ncorefsrc|    & None         &  m4_ncorefscript  & \\  
 @%       Ev. coref          & \verb|m4_evcorefsrc|   & None         &  m4_evcorefscript & \\  
-@%       Opinion miner      & \verb|m4_opinisrc|   & None           &  m4_opiniscript   & \\  
 @%       Framenet sem. role label. &  \verb|m4_fsrlsrc|   & None      &  m4_fsrlscript  & \\  
 @%@%       Alpino             & \verb|m4_alpinodir|    & \textsc{rug} & m4_Alpinoscript  & \\
 @%@%       Ticcutils          & \verb|m4_ticcdir|      & \textsc{ilk} & & \\
@@ -151,17 +154,20 @@ directories:
   performs the installation,  and 
   a script \texttt{test} that shows that the pipeline works in a trivial
   case.
+\item[test:] Directory to contain files to be used for testing.
 \item[nuweb:] Contains this document, the nuweb source that creates
   the documents and the sources and a Makefile to perform the actions.
 \end{description}
 
 @d directories to create @{m4_moddir @| @}
 @d directories to create @{m4_bindir @| @}
+@d directories to create @{m4_testdir @| @}
 @d directories to create @{m4_aenvdir @| @}
 @d directories to create @{m4_usrlocaldir @| @}
 @d directories to create @{m4_usrlocaldir<!!>/bin @| @}
 @d directories to create @{m4_usrlocaldir<!!>/lib @| @}
-@d directories to create @{m4_moddir/python m4_jardir @| @}
+@d directories to create @{m4_envdir/python m4_jardir @| @}
+@d directories to create @{m4_jardir @| @}
 
 
 Make binaries findable:
@@ -179,6 +185,52 @@ and to perform reproducible processing, the pipeline features its own
 Java and Python environment. The costs of this feature are that the
 pipeline takes more disk-space by reproducing infra-structure that is
 already present in the system and that installation takes more time.
+
+The following file sets up the programming environment in scripts.
+
+@o m4_bindir/progenv @{@%
+PIPEROOT=m4_aprojroot
+PIPEBIN=$PIPEROOT/bin
+PIPEMODD=$PIPEROOT/modules
+@< set up java environment in scripts@>
+@< activate the python environment @>
+@| @}
+
+
+\subsection{Java}
+\label{sec:java}
+
+To install Java, download \texttt{m4_javatarball} from
+\href{m4_javatarballurl}. Put it in the root directory and unpack it
+in \texttt{env/java}.
+
+@d set up java @{@%
+@< test presence of the java tarball @>
+@< unpack the java tarball @>
+@| @}
+
+@d test presence of the java tarball @{@%
+if
+  [ ! -e m4_aprojroot/m4_javatarball ]
+then
+  echo "Cannot find  m4_aprojroot/m4_javatarball"
+  exit 4
+fi
+@| @}
+
+@d unpack the java tarball @{@%
+mkdir m4_aenvdir/java
+cd m4_aenvdir/java
+tar -xzf m4_aprojroot/m4_javatarball
+@| @}
+
+@d set up java environment in scripts @{@%
+export JAVA_HOME=m4_aenvdir/java/m4_javadir
+export PATH=$JAVA_HOME/bin:$PATH
+@| JAVA_HOME @}
+
+
+
 
 \subsection{Virtual environment for Python}
 \label{sec:pythonvirtenv}
@@ -202,11 +254,11 @@ fi
 @|virtualenv @}
 
 
-@d activate the python virtual environment @{@%
+@d activate the python environment @{@%
 source m4_aenvdir/venv/bin/activate
 @|activate @}
 
-@d de-activate the python virtual environment @{@%
+@d de-activate the python environment @{@%
 deactivate
 @| @}
 
@@ -215,9 +267,13 @@ packages like KafnafParserPy.
 
 @d directories to create @{m4_aenvdir/python@| @}
 
+Activation of Python include pointing to the place where Python
+packages are:
+
 @d activate the python environment @{@%
   export PYTHONPATH=m4_aenvdir/python:\$PYTHONPATH
 @|PYTHONPATH @}
+
 
 
 
@@ -240,7 +296,7 @@ A cornerstone Pythonmodule for the pipeline is
 feature of this module that it cannot be installed with \textsc{pip}, but that
 you can put it somewhere and then put the somewhere in your \textsc{pythonpath}.
 
-
+ 
 @d install kafnafparserpy @{@%
 cd m4_aenvdir/python
 DIRN=KafNafParserPy
@@ -255,6 +311,36 @@ else
   @< remove old module @(\$DIRN@) @>
 fi
 @| @}
+
+\subsection{VUA\_pylib}
+\label{sec:VUA-pylib}
+
+Install \verb|VUA_pylib| in a similar way as \verb|KafNafParserPy|.
+ 
+@d install VU\_pylib @{@%
+cd m4_aenvdir/python
+DIRN=VUA_pylib
+@< move module @($DIRN@) @>
+git clone m4_VUA_pylibgit
+if
+  [ $? -gt 0 ]
+then
+  @< logmess @(Cannot install current $DIRN version@) @>
+  @< re-instate old module @(\$DIRN@) @>
+else
+  @< remove old module @(\$DIRN@) @>
+fi
+@| @}
+
+
+\subsection{Other Python packages}
+\label{sec:other-python-packages}
+
+@d install python packages @{@%
+pip install lxml
+@|lxml @}
+
+
 
 
 \section{Installation}
@@ -364,11 +450,13 @@ fi
 \subsection{Installation from the snapshot}
 \label{sec:snapshotinstall}
 
-For some modules a public repository is not available or not
-known. They must be installed from a tarball with snapshots that can
-be obtained from the author. Let us first check whether we have the
-snapshot and complain if we don't. We expect the file
-\verb|m4_aprojroot/m4_snapshot_tarball|.
+@%For some modules a public repository is not available or not
+@%known. They must be installed from a tarball with snapshots that can
+@%be obtained from the author. Let us first check whether we have the
+@%snapshot and complain if we don't. We expect the file
+@%\verb|m4_aprojroot/m4_snapshot_tarball|.
+
+At this moment we just build everything from a snapshot.
 
 
 @d unpack snapshots or die @{@%
@@ -378,12 +466,12 @@ if
 then
   tar -zxf m4_snapshot_tarball
 fi
-if
-  [ ! -e m4_snapshotdir ]
-then
-  echo "No module snapshots"
-  exit 1
-fi
+@%if
+@%  [ ! -e m4_snapshotdir ]
+@%then
+@%  echo "No module snapshots"
+@%  exit 1
+@%fi
 @| @}
 
 
@@ -399,13 +487,18 @@ The installation is performed by script \verb|m4_module_installer|
 @o m4_bindir/m4_module_installer @{@%
 #!/bin/bash
 @< variables of m4_module_installer @>
-@< unpack snapshots or die @>
-@< install the python environment @>
-@< install kafnafparserpy @>
-@< install the tokenizer @>
+@%@< unpack snapshots or die @>
+@%@< set up java @>
+@%@< create a virtual environment for Python @>
+@< activate the python environment @>
+@%@< install kafnafparserpy @>
+@%@< install VU\_pylib @>
+@%@< install python packages @>
+@%@< install the tokenizer @>
 @%@< install Alpino @>
 @%@< install the morphosyntactic parser @>
 @%@< install the NERC module @>
+@%@< install the opinion miner @>
 @%@< install the WSD module @>
 @%@< install the spotlight server @>
 @%@< install the lu2synset concerter @>
@@ -429,38 +522,44 @@ chmod 775  m4_bindir/m4_module_installer
 \subsection{Install tokenizer}
 \label{sec:installtokenizer}
 
-\subsubsection{Module}
-\label{sec:install-tokenizermodule}
+@%\subsubsection{Module}
+@%\label{sec:install-tokenizermodule}
+@%
+@%The tokenizer is just a jar that has to be run in Java. Although  the
+@%jar is directly available from \url{http://ixa2.si.ehu.es/ixa-pipes/download.html}, we
+@%prefer to compile the package in order to make this thing ready for
+@%reproducible set-ups. 
+@%
+@%Not yet included in this script is the set-up of an environment to use
+@%the specified version of Java (Oracle 1.7) and Maven (3). For now, we
+@%assume that it is there. This is a todo item.
+@%
+@%To install the tokenizer, we proceed as follows:
+@%
+@%\begin{enumerate}
+@%\item Clone the source from github into a temporary directory.
+@%\item Compile to produce the jar file with the tokenizer.
+@%\item move the jar file into the jar directory.
+@%\item remove the tempdir with the sourcecode.
+@%\end{enumerate}
+@%
 
-The tokenizer is just a jar that has to be run in Java. Although  the
-jar is directly available from \url{http://ixa2.si.ehu.es/ixa-pipes/download.html}, we
-prefer to compile the package in order to make this thing ready for
-reproducible set-ups. 
+The tokenizer has been unpacked from the tarball. So, we only have to
+generate a script that operates the tokenizer on a \NAF{} file.
 
-Not yet included in this script is the set-up of an environment to use
-the specified version of Java (Oracle 1.7) and Maven (3). For now, we
-assume that it is there. This is a todo item.
 
-To install the tokenizer, we proceed as follows:
 
-\begin{enumerate}
-\item Clone the source from github into a temporary directory.
-\item Compile to produce the jar file with the tokenizer.
-\item move the jar file into the jar directory.
-\item remove the tempdir with the sourcecode.
-\end{enumerate}
-
-@d install the tokenizer @{@%
+@%@d install the tokenizer @{@%
 @% @< install from github @(tokenizer@,m4_tokenizerdir@,m4_tokenizergit@) @>
-tempdir=`mktemp -d -t tok.XXXXXX`
-cd \$tempdir
+@%tempdir=`mktemp -d -t tok.XXXXXX`
+@%cd \$tempdir
 git clone m4_tokenizergit
-cd m4_tokenizerdir
-mvn clean package
-mv target/m4_tokenizerjar m4_ajardir
-cd m4_aprojroot
-@% rm -rf \$tempdir
-@| @}
+@%cd m4_tokenizerdir
+@%mvn clean package
+@%mv target/m4_tokenizerjar m4_ajardir
+@%cd m4_aprojroot
+@%@% rm -rf \$tempdir
+@%@| @}
 
 
 
@@ -477,6 +576,7 @@ cd m4_aprojroot
 @%   @< remove old module @(m4_tokenizerdir@) @>
 @% fi
 @% @| @} 
+@%
 
 \subsubsection{Script}
 \label{sec:tokenizerscript}
@@ -485,14 +585,12 @@ The script runs the tokenizerscript.
 
 @o m4_bindir/m4_tokenizerscript @{@%
 #!/bin/bash
-ROOT=m4_aprojroot
-JARFILE=m4_ajardir/m4_tokenizerjar
+source m4_bindir/progenv
+MODNAME=EHU-tok
+MODDIR=m4_amoddir/\$MODNAME
+JARNAME=ixa-pipe-tok-1.5.0.jar
+JARFILE=\$MODDIR/\$JARNAME
 java -jar \$JARFILE tok -l nl --inputkaf
-@% TOKBINDIR=m4_amoddir/<!!>m4_tokenizerdir<!!>/core
-@% cat | perl \$TOKBINDIR/tokenizer-cli.pl -l nl t  
-@% #!/bin/bash
-@% rootDir=/home/newsreader/components/EHU-tok
-@% java -jar ${rootDir}/ixa-pipe-tok-1.5.0.jar tok -l en --inputkaf
 @| @}
 
 @d make scripts executable @{@%
@@ -500,129 +598,229 @@ chmod 775  m4_bindir/m4_tokenizerscript
 @| @}
 
 
-\subsection{Install Alpino}
-\label{sec:install-alpino}
+\subsection{Pos tagger}
+\label{sec:pos-tagger}
 
-Install Alpino from the website of Gertjan van Noort.
+The pos-tagger \texttt{EHU-pos} is in the tar-ball snapshot.
 
-\subsubsection{Module}
-\label{sec:installalpinomodule}
-
-@d install Alpino @{@%
-SUCCES=0
-cd m4_amoddir
-@< move module @(Alpino@) @>
-wget m4_alpinourl
-SUCCES=\$?
-if
-  [ \$SUCCES -eq 0 ]
-then
-  tar -xzf m4_alpinosrc
-  SUCCES=\$?
-  rm -rf m4_alpinosrc
-fi
-if
-  [ $SUCCES -eq 0 ]
-then
-  @< logmess @(Installed Alpino@) @>
-  @< remove old module @(Alpino@) @>
-else
-  @< re-instate old module @(Alpino@) @>
-fi
-@|SUCCES @}
-
-Currently, alpino is not used as a pipeline-module on its own, but it
-is included in other pipeline-modules. Modules that use Alpino should
-set the following variables:
-
-@d set alpinohome @{@%
-export ALPINO_HOME=m4_amoddir/Alpino
-@| ALPINO_HOME @}
-
-
-\subsection{Morphosyntactic parser}
-\label{sec:install-morphsynt-parser}
-
-
-\subsubsection{Module}
-\label{sec:install-morphosyntmodule}
-
-@d install the morphosyntactic parser @{@%
-@< install from github @(morphsynparser@,m4_morphpardir@,m4_morphpargit@) @>
-@| @}
-
-
-@% @d install the morphosyntactic parser @{@%
-@% cd m4_amoddir
-@% @< move module @(m4_morphpardir@) @>
-@% git clone m4_morphpargit
-@% if
-@%   [ $? -gt 0 ]
-@% then
-@%   @< logmess @(Cannot install current tokenizer version@) @>
-@%   @< re-instate old module @(m4_tokenizerdir@) @>
-@% else
-@%   @< remove old module @(m4_tokenizerdir@) @>
-@% fi
-@% @| @} 
 
 \subsubsection{Script}
-\label{sec:morphparserscript}
+\label{sec:pos-taggerscript}
 
-@o m4_bindir/m4_morphparscript @{@%
+@o m4_bindir/m4_postaggerscript @{@%
 #!/bin/bash
-ROOT=m4_aprojroot
-MODDIR=m4_amoddir/<!!>m4_morphpardir<!!>
-@< set alpinohome @>
-@< set pythonpath @>
-cat | python \$MODDIR/core/morph_syn_parser.py
+source m4_bindir/progenv
+MODNAME=m4_postaggerdir
+MODDIR=m4_amoddir/\$MODNAME
+JARNAME=ixa-pipe-pos-1.0.0.jar
+JARFILE=\$MODDIR/\$JARNAME
+java -jar \$JARFILE tag
 @| @}
 
 @d make scripts executable @{@%
-chmod 775  m4_bindir/m4_morphparscript
+chmod 775  m4_bindir/m4_postaggerscript
 @| @}
 
-\subsection{Alpino hack}
-\label{sec:alpinohack}
 
-Install a hack that removes output from Alpino that cannot be
-interpreted by following modules. It is just a small python script.
+\subsection{Multiword tagger}
+\label{sec:mw-tagger}
 
-\subsubsection{Module}
-\label{sec:install_alpinohack}
+The Multi-word tagger \texttt{m4_mwtaggerdir} is in the tar-ball snapshot.
 
-@d directories to create @{m4_moddir/m4_alpinohackdir @| @}
-
-@o m4_moddir/m4_alpinohackdir/m4_alpinohackpythonscript @{@%
-#!/usr/bin/python
-import sys
-
-input = sys.stdin
-
-output = ''
-
-for line in input:
-    line = line.replace('"--','"#')
-    line = line.replace('--"','#"')
-    output += line
-
-print output
-
-@| @}
 
 \subsubsection{Script}
-\label{sec:alpinohack-script}
+\label{sec:mw-taggerscript}
 
-@o m4_bindir/m4_alpinohackscript @{@%
+@o m4_bindir/m4_mwtaggerscript @{@%
 #!/bin/bash
-ROOT=m4_aprojroot
-HACKDIR=m4_amoddir/m4_alpinohackdir
-cat | python  \$HACKDIR/clean_hack.py 
+source m4_bindir/progenv
+MODNAME=m4_mwtaggerdir
+MODDIR=m4_amoddir/\$MODNAME
+JARNAME=KafMultiWordTagger-0.0.1-jar-with-dependencies.jar
+JARFILE=\$MODDIR/lib/\$JARNAME
+PROGNAME=eu.kyotoproject.multiwordtagger.MultiTaggerSingleNaf
+CONFDIR=\$MODDIR/conf
+CONFFILE=\$CONFDIR/mwtagger.cfg
+cd \$MODDIR
+java -Xmx812m -cp "\$JARFILE" \$PROGNAME --conf-file "\$CONFFILE"
+
+@%#### Multiwordtagger using wordnet-lmf as a resource
+@%cd /home/newsreader/components/VUA-multiwordtagger
+@%java -Xmx812m -cp "./lib/KafMultiWordTagger-0.0.1-jar-with-dependencies.jar" eu.kyotoproject.multiwordtagger.MultiTaggerSingleNaf --conf-file "./conf/mwtagger.cfg"
+@| @}
+
+@d make scripts executable @{@%
+chmod 775  m4_bindir/m4_mwtaggerscript
+@| @}
+
+
+
+@%\subsection{Install Alpino}
+@%\label{sec:install-alpino}
+@%
+@%Install Alpino from the website of Gertjan van Noort.
+@%
+@%\subsubsection{Module}
+@%\label{sec:installalpinomodule}
+@%
+@%@d install Alpino @{@%
+@%SUCCES=0
+@%cd m4_amoddir
+@%@< move module @(Alpino@) @>
+@%wget m4_alpinourl
+@%SUCCES=\$?
+@%if
+@%  [ \$SUCCES -eq 0 ]
+@%then
+@%  tar -xzf m4_alpinosrc
+@%  SUCCES=\$?
+@%  rm -rf m4_alpinosrc
+@%fi
+@%if
+@%  [ $SUCCES -eq 0 ]
+@%then
+@%  @< logmess @(Installed Alpino@) @>
+@%  @< remove old module @(Alpino@) @>
+@%else
+@%  @< re-instate old module @(Alpino@) @>
+@%fi
+@%@|SUCCES @}
+@%
+@%Currently, alpino is not used as a pipeline-module on its own, but it
+@%is included in other pipeline-modules. Modules that use Alpino should
+@%set the following variables:
+@%
+@%@d set alpinohome @{@%
+@%export ALPINO_HOME=m4_amoddir/Alpino
+@%@| ALPINO_HOME @}
+@%
+@%
+@%\subsection{Morphosyntactic parser}
+@%\label{sec:install-morphsynt-parser}
+@%
+@%
+@%\subsubsection{Module}
+@%\label{sec:install-morphosyntmodule}
+@%
+@%@d install the morphosyntactic parser @{@%
+@%@< install from github @(morphsynparser@,m4_morphpardir@,m4_morphpargit@) @>
+@%@| @}
+@%
+@%
+@%@% @d install the morphosyntactic parser @{@%
+@%@% cd m4_amoddir
+@%@% @< move module @(m4_morphpardir@) @>
+@%@% git clone m4_morphpargit
+@%@% if
+@%@%   [ $? -gt 0 ]
+@%@% then
+@%@%   @< logmess @(Cannot install current tokenizer version@) @>
+@%@%   @< re-instate old module @(m4_tokenizerdir@) @>
+@%@% else
+@%@%   @< remove old module @(m4_tokenizerdir@) @>
+@%@% fi
+@%@% @| @} 
+@%
+@%\subsubsection{Script}
+@%\label{sec:morphparserscript}
+@%
+@%@o m4_bindir/m4_morphparscript @{@%
+@%#!/bin/bash
+@%ROOT=m4_aprojroot
+@%MODDIR=m4_amoddir/<!!>m4_morphpardir<!!>
+@%@< set alpinohome @>
+@%@< set pythonpath @>
+@%cat | python \$MODDIR/core/morph_syn_parser.py
+@%@| @}
+@%
+@%@d make scripts executable @{@%
+@%chmod 775  m4_bindir/m4_morphparscript
+@%@| @}
+@%
+@%\subsection{Alpino hack}
+@%\label{sec:alpinohack}
+@%
+@%Install a hack that removes output from Alpino that cannot be
+@%interpreted by following modules. It is just a small python script.
+@%
+@%\subsubsection{Module}
+@%\label{sec:install_alpinohack}
+@%
+@%@d directories to create @{m4_moddir/m4_alpinohackdir @| @}
+@%
+@%@o m4_moddir/m4_alpinohackdir/m4_alpinohackpythonscript @{@%
+@%#!/usr/bin/python
+@%import sys
+@%
+@%input = sys.stdin
+@%
+@%output = ''
+@%
+@%for line in input:
+@%    line = line.replace('"--','"#')
+@%    line = line.replace('--"','#"')
+@%    output += line
+@%
+@%print output
+@%
+@%@| @}
+@%
+@%\subsubsection{Script}
+@%\label{sec:alpinohack-script}
+@%
+@%@o m4_bindir/m4_alpinohackscript @{@%
+@%#!/bin/bash
+@%ROOT=m4_aprojroot
+@%HACKDIR=m4_amoddir/m4_alpinohackdir
+@%cat | python  \$HACKDIR/clean_hack.py 
+@%
+@%@| @}
+@%
+@%@d make scripts executable @{@%
+@%chmod 775  m4_bindir/m4_alpinohackscript
+@%@| @}
+@%
+@%
+@%
+
+
+
+\subsection{Constituent parser}
+\label{sec:constparser}
+
+The EHU parse module has been unpacked from the
+tarball.
+
+
+@%\subsubsection{Installation}
+@%\label{sec:parse-installer}
+@%
+@%@d install the NERC module @{@%
+@%cd m4_amoddir/m4_nercdir/nerc-resources/en
+@%PROPSOURCE=m4_nercpropscript
+@%PROPFIL=propfile
+@%gawk '{ gsub("/home/newsreader/components", newdir); print}' newdir="m4_amoddir" $PROPSOURCE >$PROPFIL
+@%@| @}
+
+\subsubsection{Script}
+\label{sec:constscript}
+
+The script runs the constituent parser.
+
+@o m4_bindir/m4_cparsescript @{@%
+#!/bin/bash
+source m4_bindir/progenv
+MODNAME=m4_parsedir
+MODDIR=m4_amoddir/\$MODNAME
+JARNAME=m4_parsejar
+JARFILE=\$MODDIR/\$JARNAME
+java -jar $JARFILE parse -g sem
+@%java -jar ${rootDir}/ixa-pipe-parse-1.0.0.jar parse -g sem
 
 @| @}
 
 @d make scripts executable @{@%
-chmod 775  m4_bindir/m4_alpinohackscript
+chmod 775 m4_bindir/m4_cparsescript
 @| @}
 
 
@@ -630,35 +828,46 @@ chmod 775  m4_bindir/m4_alpinohackscript
 \subsection{Named entity recognition (NERC)}
 \label{sec:nerc}
 
-\subsubsection{Module}
-\label{sec:nercmodule}
+The NERC Named Entity Recognizer has been unpacked from the
+tarball. There is a configuration file with hard-coded paths in it.
+So, we only have to modify this script and to
+generate a script that operates NERC on a \NAF{} file.
 
-We do not (yet) have the source code of the NER module. A snapshot is
-comprised in a jar library.
+\subsubsection{Installation}
+\label{sec:nerc-installer}
 
 @d install the NERC module @{@%
-@% cp m4_asnapshotroot/jars/m4_nerjar m4_jardir/
-cp  m4_aprojroot/m4_snapshotdir/m4_nercdir/m4_nercjar m4_ajardir/
-chmod 644 m4_ajardir/m4_nercjar
+cd m4_amoddir/m4_nercdir/nerc-resources/en
+PROPSOURCE=m4_nercpropscript
+PROPFIL=propfile
+gawk '{ gsub("/home/newsreader/components", newdir); print}' newdir="m4_amoddir" $PROPSOURCE >$PROPFIL
 @| @}
+
+
 
 \subsubsection{Script}
 \label{sec:nercscript}
 
-Unfortunately, this module does not accept
-the \NAF{} version that the previous module supplies. 
-
-@d gawk script to patch NAF for nerc module @{@%
-patchscript='{gsub("wf id=", "wf wid="); gsub("term id=", "term tid="); print}'
-@| @}
-
+The script runs NERC.
 
 @o m4_bindir/m4_nercscript @{@%
 #!/bin/bash
-ROOT=m4_aprojroot
-JARDIR=m4_ajardir
-@< gawk script to patch NAF for nerc module @>
-cat | gawk "$patchscript" | java -jar \$JARDIR/m4_nercjar tag
+source m4_bindir/progenv
+MODNAME=m4_nercdir
+MODDIR=m4_amoddir/\$MODNAME
+JARNAME=ixa-pipe-nerc-1.2.0.jar
+JARFILE=\$MODDIR/\$JARNAME
+PROPDIR=\$MODDIR/nerc-resources/en/
+PROPFILE=\$PROPDIR/propfile
+
+java -jar \$JARFILE tag -p \$PROPFILE
+
+@%rootDir=/home/newsreader/components/EHU-nerc
+@%#java -jar ${rootDir}/ixa.pipe.nerc-1.0.0.jar tag -f baseline --model /en/en-nerc-perceptron-baseline-c0-b3-ontonotes-4.0.bin
+@%#java -jar ${rootDir}/ixa-pipe-nerc-1.1.5.jar tag -p ${rootDir}/nerc-resources/en/en-distsim-600-conll03-testa.prop
+@%#java -jar ${rootDir}/ixa-pipe-nerc-1.1.5.jar tag -p ${rootDir}/nerc-resources/en/en-distsim-600-conll03-testa.prop
+@%#java -jar ${rootDir}/ixa-pipe-nerc-1.2.0.jar tag -p ${rootDir}/nerc-resources/en/en-wordclass-600-conll03-testa.prop
+@%java -jar ${rootDir}/ixa-pipe-nerc-1.2.0.jar tag -p ${rootDir}/nerc-resources/en/en-brown-clark-600-conll03-testa.prop
 @| @}
 
 @d make scripts executable @{@%
@@ -666,487 +875,616 @@ chmod 775  m4_bindir/m4_nercscript
 @| @}
 
 
-\subsection{Wordsense-disambiguation}
-\label{sec:wsd}
-
-Install WSD from its Github source.
-
-
-\subsubsection{Module}
-\label{sec:wsd-module}
-
-
-@%  4209  2014-11-08 16:55:05 cat input.naf | python dsc_wsd_tagger.py |less
-@%  4210  2014-11-08 16:55:57 less install_naf.sh 
-@%  4211  2014-11-08 17:18:48 ./install_naf.sh 
-@%  4212  2014-11-09 09:34:25 cat naf_example.xml | python dsc_wsd_tagger.py --naf > ../output.naf
-@%  4213  2014-11-09 09:34:32 less ../output.naf 
-@%  4214  2014-11-09 09:46:53 ls /mnt/kyoto/projecten/pipelines/dutch-nlp-modules-on-Lisa/test
-@%  4215  2014-11-09 09:47:56 cat /mnt/kyoto/projecten/pipelines/dutch-nlp-modules-on-Lisa/test/test.nerc.naf | python dsc_wsd_tagger.py --naf > ../output.naf
-@%  4216  2014-11-09 09:48:03 less ../output.naf 
-
-@d install the WSD module @{@%
-@< install from github @(wsd@,m4_wsddir@,m4_wsdgit@) @>
-cd m4_amoddir/m4_wsddir
-./install_naf.sh
-@| @}
-
-
-\subsubsection{Script}
-\label{sec:wsdscript}
-
-@o m4_bindir/m4_wsdscript @{@%
-#!/bin/bash
-# WSD -- wrapper for word-sense disambiguation
-# 8 Jan 2014 Ruben Izquierdo
-# 16 sep 2014 Paul Huygen
-ROOT=m4_aprojroot
-WSDDIR=m4_amoddir/m4_wsddir
-WSDSCRIPT=dsc_wsd_tagger.py
-cat | python $WSDDIR/$WSDSCRIPT --naf 
-@| @}
-
-@d make scripts executable @{@%
-chmod 775  m4_bindir/m4_wsdscript
-@| @}
-
-@% \subsubsection{Script}
-@% \label{sec:wsdscript}
-@% 
-@% @o m4_bindir/m4_wsdscript @{@%
-@% #!/bin/bash
-@% # WSD -- wrapper for word-sense disambiguation
-@% # 8 Jan 2014 Ruben Izquierdo
-@% # 16 sep 2014 Paul Huygen
-@% ROOT=m4_aprojroot
-@% WSDDIR=m4_amoddir/m4_wsddir
-@% WSDSCRIPT=kaf_annotate_senses.pl
-@% UKB=\$WSDDIR/ukb_wsd_2.0
-@% POSMAP=$WSDDIR/posmap.NGV.txt
-@% 
-@% if [ "$1" = "nl" ]
-@% then
-@%   GRAPH=\$WSDDIR/cdb2.0-nld-all.infv.0.0.no-allwords.bin
-@%   DICT=\$WSDDIR/dictionary
-@% else
-@%   GRAPH=\$WSDDIR/wn30g_eng.v20.bin
-@%   DICT=\$WSDDIR/wn30_eng_dict.txt
-@% fi
-@% 
-@% iconv -t utf-8//IGNORE | \$WSDDIR/\$WSDSCRIPT -x \$UKB -M \$GRAPH -W \$DICT -m \$POSMAP
-2@% @| @}
-@% 
-@% @d make scripts executable @{@%
-@% chmod 775  m4_bindir/m4_wsdscript
-@% @| @}
+@%
+@%\subsubsection{Module}
+@%\label{sec:nercmodule}
+@%
+@%We do not (yet) have the source code of the NER module. A snapshot is
+@%comprised in a jar library.
+@%
+@%@d install the NERC module @{@%
+@%@% cp m4_asnapshotroot/jars/m4_nerjar m4_jardir/
+@%cp  m4_aprojroot/m4_snapshotdir/m4_nercdir/m4_nercjar m4_ajardir/
+@%chmod 644 m4_ajardir/m4_nercjar
+@%@| @}
+@%
+@%\subsubsection{Script}
+@%\label{sec:nercscript}
+@%
+@%Unfortunately, this module does not accept
+@%the \NAF{} version that the previous module supplies. 
+@%
+@%@d gawk script to patch NAF for nerc module @{@%
+@%patchscript='{gsub("wf id=", "wf wid="); gsub("term id=", "term tid="); print}'
+@%@| @}
+@%
+@%
+@%@o m4_bindir/m4_nercscript @{@%
+@%#!/bin/bash
+@%ROOT=m4_aprojroot
+@%JARDIR=m4_ajardir
+@%@< gawk script to patch NAF for nerc module @>
+@%cat | gawk "$patchscript" | java -jar \$JARDIR/m4_nercjar tag
+@%@| @}
+@%
+@%@d make scripts executable @{@%
+@%chmod 775  m4_bindir/m4_nercscript
+@%@| @}
 
 
-@% We do not yet have a source-repository of the wsd module. Therefore,
-@% install from a snapshot on Lisa.
-@% 
-@% \subsubsection{Module}
-@% \label{sec:wsd-module}
-@% 
-@% @d install the WSD module @{@%
-@% @%cp -r m4_asnapshotroot/m4_wsddir m4_amoddir/
-@% cp -r m4_aprojroot/m4_snapshotdir/m4_wsddir m4_amoddir/
-@% @| @}
-@% 
-@% 
-@% \subsubsection{Script}
-@% \label{sec:wsdscript}
-@% 
-@% @o m4_bindir/m4_wsdscript @{@%
-@% #!/bin/bash
-@% # WSD -- wrapper for word-sense disambiguation
-@% # 8 Jan 2014 Ruben Izquierdo
-@% # 16 sep 2014 Paul Huygen
-@% ROOT=m4_aprojroot
-@% WSDDIR=m4_amoddir/m4_wsddir
-@% WSDSCRIPT=kaf_annotate_senses.pl
-@% UKB=\$WSDDIR/ukb_wsd_2.0
-@% POSMAP=$WSDDIR/posmap.NGV.txt
-@% 
-@% if [ "$1" = "nl" ]
-@% then
-@%   GRAPH=\$WSDDIR/cdb2.0-nld-all.infv.0.0.no-allwords.bin
-@%   DICT=\$WSDDIR/dictionary
-@% else
-@%   GRAPH=\$WSDDIR/wn30g_eng.v20.bin
-@%   DICT=\$WSDDIR/wn30_eng_dict.txt
-@% fi
-@% 
-@% iconv -t utf-8//IGNORE | \$WSDDIR/\$WSDSCRIPT -x \$UKB -M \$GRAPH -W \$DICT -m \$POSMAP
-@% @| @}
-@% 
-@% @d make scripts executable @{@%
-@% chmod 775  m4_bindir/m4_wsdscript
-@% @| @}
+\subsection{Opinion miner}
+\label{sec:opiminer}
 
-\subsection{Lexical-unit coverter}
-\label{sec:lu2synset}
+The opinion-miner \texttt{m4_opinidir} is in the tar-ball snapshot. However, there have been absolute (hence wrong) paths engraved in file \verb|my_train.cfg|. So, that has to be repaired.
 
-\subsubsection{Module}
-\label{sec:lu2synsetinstaller}
+In the end it still doesn't work. We get the following message:
 
-There is not an official repository for this module yet, so copy the
-module from the tarball.
+\begin{verbatim}
+Traceback (most recent call last):
+  File "/mnt/sda1/pipelines/engpipe/modules/VUA-opinion-miner/opinion_miner_deluxe/classify_kaf_file.py", line 293, in <module>
+    my_lp.set_begin_timestamp(begin_time)
+AttributeError: Clp instance has no attribute 'set_begin_timestamp'
 
-@d install the lu2synset converter @{@%
-cp -r m4_asnapshotroot/m4_lu2syndir m4_amoddir/
-@| @}
+\end{verbatim}
 
-\subsubsection{Script}
-\label{sec:lu2synsetscript}
+I give up for now.
 
-@o m4_bindir/m4_lu2synsetscript  @{@%
-#!/bin/bash
-ROOT=m4_aprojroot
-JAVALIBDIR=m4_amoddir/m4_lu2syndir/lib
-RESOURCESDIR=m4_amoddir/m4_lu2syndir/resources
-JARFILE=WordnetTools-1.0-jar-with-dependencies.jar
-java -Xmx812m -cp  $JAVALIBDIR/$JARFILE vu.wntools.util.NafLexicalUnitToSynsetReferences \
-   --wn-lmf "\$RESOURCESDIR/cornetto2.1.lmf.xml" --format naf 
-@| @}
+\subsubsection{Installer}
+\label{sec:opinimin-installer}
 
-
-\subsection{Spotlight}
-\label{sec:spotlight}
-
-Spotlight is not itself a pipeline-module, but it is needed in the
-\NED{} module. Now I make a shortcut from the snapshot.
-
-@d install the spotlight server @{@%
-cp -r m4_asnapshotroot/m4_spotlight_snapdir  m4_amoddir/
-@| @}
-
-@d start the spotlight server @{@%
-cd m4_amoddir/m4_spotlight_dir
-java -jar -Xmx8g dbpedia-spotlight-0.7-jar-with-dependencies-candidates.jar nl http://localhost:2060/rest  &
-@| @}
-
-
-
-@d check/start the spotlight server @{@%
-spottasks=`netstat -an | grep :m4_spotlight_nl_port | wc -l`
+@d install the opinion miner @{@%
+cd m4_amoddir/m4_opinidir/opinion_miner_deluxe
+REPFIL=my_train.cfg
+grep newsreader $REPFIL
 if
-  [ $spottasks -eq 0 ]
+ [ $? == 0 ]
 then
-  @< start the spotlight server @>
-  sleep 180
+  mv $REPFIL old.$REPFIL
+  gawk '{ gsub("/home/newsreader/components", newdir); print}' newdir="m4_amoddir" old.$REPFIL >$REPFIL
 fi
 @| @}
 
-\subsection{NED}
-\label{sec:onto}
-
-The \NED{} module wants to consult the dbpedia spotlight server, so
-that one has to be installed somewhere. For this moment, let us
-suppose that it has been installed on localhost.
-
-
-
-
-@% \subsubsection{Installation of the spotlight server}
-@% \label{sec:spotlightinstall}
-
-@% Itziar Aldabe (\href{mailto:itziar.aldabe@@ehu.es}) wrote:
-@% 
-@% \begin{quotation}
-@% The NED module works for English, Spanish, Dutch and Italian. The
-@% module returns multiple candidates and correspondences for all the
-@% languages. If you want to integrate it in your Dutch or Italian
-@% pipeline, you will need:
-@% 
-@% \begin{enumerate}
-@% \item The jar file with the dbpedia-spotlight server. You need the
-@%   version that Aitor developed in order to correctly use the "candidates"
-@%   option. You can copy it from the English VM. The jar file name is
-@%   \verb|dbpedia-spotlight-0.7-jar-with-dependencies-candidates.jar|
-@% \item The Dutch/Italian model for the dbpedia-spotlight. You can download them from:
-@%     \href{http://spotlight.sztaki.hu/downloads/}
-@% \item The jar file with the NED module:
-@%     \verb|ixa-pipe-ned-1.0.jar|. You can copy it from the English VM
-@%     too.
-@% \item The file: \verb|wikipedia-db.v1.tar.gz|. You can download it
-@%   from:
-@%   \href{http://ixa2.si.ehu.es/ixa-pipes/models/wikipedia-db.v1.tar.gz}. This
-@%   file contains the required information to do the mappings between
-@%   the wikipedia-entries. The zip file contains three files:
-@%   wikipedia-db, wikipedia-db.p and wikipedia-db.t
-@% \end{enumerate}
-@% 
-@% To start the dbPeadia server:
-@%     Italian server: java -jar -Xmx8g dbpedia-spotlight-0.7-jar-with-dependencies-candidates.jar it http://localhost:2050/rest 
-@%     Dutch server:  java -jar -Xmx8g dbpedia-spotlight-0.7-jar-with-dependencies-candidates.jar nl http://localhost:2060/rest 
-@% 
-@%     We set 8Gb for the English server, but the Italian and Dutch spotlight will require less memory. 
-@% 
-@% 
-@% 
-@%     To run the NED module
-@% 
-@%     Italian:
-@%     cat file.naf | java -jar ixa-pipe-ned-1.0.jar -p 2050 -e candidates -i $dir/wikipedia-db -n itEn
-@% 
-@%     Dutch:
-@%     cat file.naf | java -jar ixa-pipe-ned-1.0.jar -p 2060 -e candidates -i $dir/wikipedia-db -n nlEn
-@% 
-@%     where $dir refers to the directory the wikipedia-db* files are. 
-@% 
-@% Please, let me know if something is not clear or something doesn't work properly.
-@% 
-@% Regards,
-@% Itziar
-@% \end{quotation}
-
-
-
-\subsubsection{Module}
-\label{sec:ned-module}
-
-@d install the \NED{} module @{@%
-cp m4_asnapshotroot/m4_neddir/m4_nedjar m4_ajardir/
-mkdir -p m4_amoddir/m4_neddir
-cd m4_amoddir/m4_neddir
-wget http://ixa2.si.ehu.es/ixa-pipes/models/wikipedia-db.v1.tar.gz
-tar -xzf wikipedia-db.v1.tar.gz
-@| @}
 
 
 \subsubsection{Script}
-\label{sec:nedscript}
+\label{sec:opiniscript}
 
-@o m4_bindir/m4_nedscript @{@%
+@o m4_bindir/m4_opiniscript @{@%
 #!/bin/bash
-ROOT=m4_aprojroot
-JARDIR=m4_ajardir
-@< check/start the spotlight server @>
-cat | java -jar \$JARDIR/m4_nedjar  -p 2060 -e candidates -i m4_amoddir/m4_neddir/wikipedia-db -n nlEn
-@| @}
+source m4_bindir/progenv
+MODNAME=m4_opinidir
+MODDIR=m4_amoddir/\$MODNAME
+rootDir=$MODDIR/opinion_miner_deluxe
+
+cd ${rootDir}
+python $rootDir/classify_kaf_file.py ${rootDir}/my_train.cfg #2> /dev/null
 
 
-@d make scripts executable @{@%
-chmod 775  m4_bindir/m4_nedscript
-@| @}
-
-
-
-\subsection{Ontotagger}
-\label{sec:onto}
-
-We do not yet have a source-repository of the Ontotagger module. Therefore,
-install from a snapshot on Lisa.
-
-\subsubsection{Module}
-\label{sec:ontotagger-module}
-
-@d install the onto module @{@%
-@%cp -r m4_asnapshotroot/m4_ontodir m4_amoddir/
-cp -r m4_aprojroot/m4_snapshotdir/m4_ontodir m4_amoddir/
-chmod -R o+r m4_amoddir
-@| @}
-
-
-\subsubsection{Script}
-\label{sec:ontoscript}
-
-@o m4_bindir/m4_ontoscript @{@%
-#!/bin/bash
-ROOT=m4_aprojroot
-ONTODIR=m4_amoddir/m4_ontodir
-JARDIR=\$ONTODIR/lib
-RESOURCESDIR=\$ONTODIR/resources
-PREDICATEMATRIX="\$RESOURCESDIR/PredicateMatrix.v1.1/PredicateMatrix.v1.1.role.nl-1.merged"
-GRAMMATICALWORDS="\$RESOURCESDIR/grammaticals/Grammatical-words.nl"
-TMPFIL=`mktemp -t stap6.XXXXXX`
-cat >$TMPFIL
-
-CLASSPATH=\$JARDIR/ontotagger-1.0-jar-with-dependencies.jar
-JAVASCRIPT=eu.kyotoproject.main.KafPredicateMatrixTagger
-
-
-@% JAVA_ARGS="-Xmx1812m"
-@% JAVA_ARGS=\$JAVA_ARGS " -cp \$JARDIR/ontotagger-1.0-jar-with-dependencies.jar"
-@% JAVA_ARGS=\$JAVA_ARGS " eu.kyotoproject.main.KafPredicateMatrixTagger"
-JAVA_ARGS="--mappings \"fn;pb;nb\" "
-JAVA_ARGS="\$JAVA_ARGS  --key odwn-eq"
-JAVA_ARGS="\$JAVA_ARGS  --version 1.1"
-JAVA_ARGS="\$JAVA_ARGS  --predicate-matrix \$PREDICATEMATRIX"
-JAVA_ARGS="\$JAVA_ARGS  --grammatical-words \$GRAMMATICALWORDS"
-JAVA_ARGS="\$JAVA_ARGS  --naf-file \$TMPFIL"
-java -Xmx1812m -cp \$CLASSPATH \$JAVASCRIPT \$JAVA_ARGS
-
-@% @< onto javacommand @>
-@% java \$JAVA_ARGS
-@% java -Xmx1812m -cp $JARDIR/ontotagger-1.0-jar-with-dependencies.jar \
-@%      eu.kyotoproject.main.KafPredicateMatrixTagger \
-@%      --mappings "fn;pb;nb" --key odwn-eq --version 1.1 \
-@%      --predicate-matrix \
-@%        "\$RESOURCESDIR/PredicateMatrix.v1.1/PredicateMatrix.v1.1.role.nl-1.merged" \ 
-@%        --grammatical-words \
-@%      "\$RESOURCESDIR/grammaticals/Grammatical-words.nl" \
-@%       --naf-file $TMPFIL 
-rm -rf \$TMPFIL
-
-@| @}
-
-
-@% The Java command for the onto-tagger is very long. I tried to make it
-@% more readable and could only come up with the following method:
-@% 
-@% @d onto javacommand @{java -Xmx1812m @| @}
-@% @d onto javacommand @{-cp \$CLASSPATH @| @}
-@% @d onto javacommand @{\$JAVASCRIPT  @| @}
-@% @d onto javacommand @{--mappings "fn;pb;nb" @| @}
-@% @d onto javacommand @{ --key odwn-eq @| @}
-@% @d onto javacommand @{--version 1.1 @| @}
-@% @d onto javacommand @{--predicate-matrix \$PREDICATEMATRIX @| @}
-@% @d onto javacommand @{ --grammatical-words "\$GRAMMATICALWORDS" @| @}
-@% @d onto javacommand @{--naf-file $TMPFIL
-@% @| @}
-
-
-
-@d make scripts executable @{@%
-chmod 775  m4_bindir/m4_ontoscript
-@| @}
-
-
-
-\subsection{Heideltime}
-\label{sec:heideltime}
-
-\subsubsection{Module}
-\label{sec:heideltimmodule}
-
-@d install the heideltime module @{@%
-@< install from github @(heideltime@,m4_heideldir@,m4_heidelgit@) @>
-@< adapt heideltime's config.props @>
-
-@| @}
-
-@d adapt heideltime's config.props @{@%
-CONFIL=m4_heideldir/config.props
-tempfil=`mktemp -t heideltmp.XXXXXX`
-mv $CONFIL \$tempfil
-MODDIR=m4_amoddir
-TREETAGDIR=m4_treetagdir
-AWKCOMMAND='/^treeTaggerHome/ {\$0="treeTaggerHome = m4_amoddir/m4_treetagdir"}; {print}'
-gawk "\$AWKCOMMAND" \$tempfil >\$CONFIL
-@| @}
-
-
-\subsubsection{Script}
-\label{sec:heideltime-script}
-
-@o m4_bindir/m4_heidelscript @{@%
-#!/bin/bash
-ROOT=m4_aprojroot
-HEIDELDIR=m4_amoddir/m4_heideldir
-TEMPDIR=`mktemp -t -d heideltmp.XXXXXX`
-cd $HEIDELDIR
-@< set pythonpath @>
-iconv -t utf-8//IGNORE | python \$HEIDELDIR/HeidelTime_NafKaf.py \$HEIDELDIR/heideltime-standalone/ \$TEMPDIR
 @| @}
 
 @d make scripts executable @{@%
-chmod 775  m4_bindir/m4_heidelscript
-@| @}
-
-\subsection{Semantic Role labelling}
-\label{sec:SRL}
-
-\subsubsection{Module}
-\label{sec:SRL-module}
-
-@d install the srl module @{@%
-@< install from github @(srl@,m4_srldir@,m4_srlgit@) @>
-@%cp -r m4_asnapshotroot/m4_srldir m4_amoddir/
+chmod 775  m4_bindir/m4_opiniscript
 @| @}
 
 
-\subsubsection{Script}
-\label{sec:SRLscript}
-
-
-First:
-\begin{enumerate}
-\item set the correct environment. The module needs python and timble.
-\item  create a tempdir and in that dir a file to store the input and a (\textsc{scv}) file with the feature-vector.
-\end{enumerate}
-
-@o m4_bindir/m4_srlscript @{@%
-#!/bin/bash
-ROOT=m4_aprojroot
-SRLDIR=m4_amoddir/m4_srldir
-TEMPDIR=`mktemp -d -t SRLTMP.XXXXXX`
-cd \$SRLDIR
-@< set local bin directory @>
-@< set pythonpath @>
-INPUTFILE=$TEMPDIR/inputfile
-FEATUREVECTOR=$TEMPDIR/csvfile
-TIMBLOUTPUTFILE=$TEMPDIR/timblpredictions
-@| @}
-
-Create a feature-vector.
-
-@o m4_bindir/m4_srlscript @{@%
-cat | tee  \$INPUTFILE | python nafAlpinoToSRLFeatures.py > \$FEATUREVECTOR
-@| @}
-
-Run the trained model on the feature-vector.
-
-@o m4_bindir/m4_srlscript @{@%
-timbl -mO:I1,2,3,4 -i e-mags_mags_press_newspapers.wgt -t \$FEATUREVECTOR -o \$TIMBLOUTPUTFILE >/dev/null 2>/dev/null
-@| @}
-
-Insert the \textsc{srl} values into the \textsc{naf} file.
-
-@o m4_bindir/m4_srlscript @{@%
-python timblToAlpinoNAF.py \$INPUTFILE \$TIMBLOUTPUTFILE
-@| @}
-
-
-Clean up.
-
-@o m4_bindir/m4_srlscript @{@%
-rm -rf \$TEMPDIR
-@| @}
-
-
-@d make scripts executable @{@%
-chmod 775  m4_bindir/m4_srlscript
-@| @}
+@%\subsection{Wordsense-disambiguation}
+@%\label{sec:wsd}
+@%
+@%Install WSD from its Github source.
+@%
+@%
+@%\subsubsection{Module}
+@%\label{sec:wsd-module}
+@%
+@%
+@%@%  4209  2014-11-08 16:55:05 cat input.naf | python dsc_wsd_tagger.py |less
+@%@%  4210  2014-11-08 16:55:57 less install_naf.sh 
+@%@%  4211  2014-11-08 17:18:48 ./install_naf.sh 
+@%@%  4212  2014-11-09 09:34:25 cat naf_example.xml | python dsc_wsd_tagger.py --naf > ../output.naf
+@%@%  4213  2014-11-09 09:34:32 less ../output.naf 
+@%@%  4214  2014-11-09 09:46:53 ls /mnt/kyoto/projecten/pipelines/dutch-nlp-modules-on-Lisa/test
+@%@%  4215  2014-11-09 09:47:56 cat /mnt/kyoto/projecten/pipelines/dutch-nlp-modules-on-Lisa/test/test.nerc.naf | python dsc_wsd_tagger.py --naf > ../output.naf
+@%@%  4216  2014-11-09 09:48:03 less ../output.naf 
+@%
+@%@d install the WSD module @{@%
+@%@< install from github @(wsd@,m4_wsddir@,m4_wsdgit@) @>
+@%cd m4_amoddir/m4_wsddir
+@%./install_naf.sh
+@%@| @}
+@%
+@%
+@%\subsubsection{Script}
+@%\label{sec:wsdscript}
+@%
+@%@o m4_bindir/m4_wsdscript @{@%
+@%#!/bin/bash
+@%# WSD -- wrapper for word-sense disambiguation
+@%# 8 Jan 2014 Ruben Izquierdo
+@%# 16 sep 2014 Paul Huygen
+@%ROOT=m4_aprojroot
+@%WSDDIR=m4_amoddir/m4_wsddir
+@%WSDSCRIPT=dsc_wsd_tagger.py
+@%cat | python $WSDDIR/$WSDSCRIPT --naf 
+@%@| @}
+@%
+@%@d make scripts executable @{@%
+@%chmod 775  m4_bindir/m4_wsdscript
+@%@| @}
+@%
+@%@% \subsubsection{Script}
+@%@% \label{sec:wsdscript}
+@%@% 
+@%@% @o m4_bindir/m4_wsdscript @{@%
+@%@% #!/bin/bash
+@%@% # WSD -- wrapper for word-sense disambiguation
+@%@% # 8 Jan 2014 Ruben Izquierdo
+@%@% # 16 sep 2014 Paul Huygen
+@%@% ROOT=m4_aprojroot
+@%@% WSDDIR=m4_amoddir/m4_wsddir
+@%@% WSDSCRIPT=kaf_annotate_senses.pl
+@%@% UKB=\$WSDDIR/ukb_wsd_2.0
+@%@% POSMAP=$WSDDIR/posmap.NGV.txt
+@%@% 
+@%@% if [ "$1" = "nl" ]
+@%@% then
+@%@%   GRAPH=\$WSDDIR/cdb2.0-nld-all.infv.0.0.no-allwords.bin
+@%@%   DICT=\$WSDDIR/dictionary
+@%@% else
+@%@%   GRAPH=\$WSDDIR/wn30g_eng.v20.bin
+@%@%   DICT=\$WSDDIR/wn30_eng_dict.txt
+@%@% fi
+@%@% 
+@%@% iconv -t utf-8//IGNORE | \$WSDDIR/\$WSDSCRIPT -x \$UKB -M \$GRAPH -W \$DICT -m \$POSMAP
+@%2@% @| @}
+@%@% 
+@%@% @d make scripts executable @{@%
+@%@% chmod 775  m4_bindir/m4_wsdscript
+@%@% @| @}
+@%
+@%
+@%@% We do not yet have a source-repository of the wsd module. Therefore,
+@%@% install from a snapshot on Lisa.
+@%@% 
+@%@% \subsubsection{Module}
+@%@% \label{sec:wsd-module}
+@%@% 
+@%@% @d install the WSD module @{@%
+@%@% @%cp -r m4_asnapshotroot/m4_wsddir m4_amoddir/
+@%@% cp -r m4_aprojroot/m4_snapshotdir/m4_wsddir m4_amoddir/
+@%@% @| @}
+@%@% 
+@%@% 
+@%@% \subsubsection{Script}
+@%@% \label{sec:wsdscript}
+@%@% 
+@%@% @o m4_bindir/m4_wsdscript @{@%
+@%@% #!/bin/bash
+@%@% # WSD -- wrapper for word-sense disambiguation
+@%@% # 8 Jan 2014 Ruben Izquierdo
+@%@% # 16 sep 2014 Paul Huygen
+@%@% ROOT=m4_aprojroot
+@%@% WSDDIR=m4_amoddir/m4_wsddir
+@%@% WSDSCRIPT=kaf_annotate_senses.pl
+@%@% UKB=\$WSDDIR/ukb_wsd_2.0
+@%@% POSMAP=$WSDDIR/posmap.NGV.txt
+@%@% 
+@%@% if [ "$1" = "nl" ]
+@%@% then
+@%@%   GRAPH=\$WSDDIR/cdb2.0-nld-all.infv.0.0.no-allwords.bin
+@%@%   DICT=\$WSDDIR/dictionary
+@%@% else
+@%@%   GRAPH=\$WSDDIR/wn30g_eng.v20.bin
+@%@%   DICT=\$WSDDIR/wn30_eng_dict.txt
+@%@% fi
+@%@% 
+@%@% iconv -t utf-8//IGNORE | \$WSDDIR/\$WSDSCRIPT -x \$UKB -M \$GRAPH -W \$DICT -m \$POSMAP
+@%@% @| @}
+@%@% 
+@%@% @d make scripts executable @{@%
+@%@% chmod 775  m4_bindir/m4_wsdscript
+@%@% @| @}
+@%
+@%\subsection{Lexical-unit converter}
+@%\label{sec:lu2synset}
+@%
+@%\subsubsection{Module}
+@%\label{sec:lu2synsetinstaller}
+@%
+@%There is not an official repository for this module yet, so copy the
+@%module from the tarball.
+@%
+@%@d install the lu2synset converter @{@%
+@%cp -r m4_asnapshotroot/m4_lu2syndir m4_amoddir/
+@%@| @}
+@%
+@%\subsubsection{Script}
+@%\label{sec:lu2synsetscript}
+@%
+@%@o m4_bindir/m4_lu2synsetscript  @{@%
+@%#!/bin/bash
+@%ROOT=m4_aprojroot
+@%JAVALIBDIR=m4_amoddir/m4_lu2syndir/lib
+@%RESOURCESDIR=m4_amoddir/m4_lu2syndir/resources
+@%JARFILE=WordnetTools-1.0-jar-with-dependencies.jar
+@%java -Xmx812m -cp  $JAVALIBDIR/$JARFILE vu.wntools.util.NafLexicalUnitToSynsetReferences \
+@%   --wn-lmf "\$RESOURCESDIR/cornetto2.1.lmf.xml" --format naf 
+@%@| @}
+@%
+@%
+@%\subsection{Spotlight}
+@%\label{sec:spotlight}
+@%
+@%Spotlight is not itself a pipeline-module, but it is needed in the
+@%\NED{} module. Now I make a shortcut from the snapshot.
+@%
+@%@d install the spotlight server @{@%
+@%cp -r m4_asnapshotroot/m4_spotlight_snapdir  m4_amoddir/
+@%@| @}
+@%
+@%@d start the spotlight server @{@%
+@%cd m4_amoddir/m4_spotlight_dir
+@%java -jar -Xmx8g dbpedia-spotlight-0.7-jar-with-dependencies-candidates.jar nl http://localhost:2060/rest  &
+@%@| @}
+@%
+@%
+@%
+@%@d check/start the spotlight server @{@%
+@%spottasks=`netstat -an | grep :m4_spotlight_nl_port | wc -l`
+@%if
+@%  [ $spottasks -eq 0 ]
+@%then
+@%  @< start the spotlight server @>
+@%  sleep 180
+@%fi
+@%@| @}
+@%
+@%\subsection{NED}
+@%\label{sec:onto}
+@%
+@%The \NED{} module wants to consult the dbpedia spotlight server, so
+@%that one has to be installed somewhere. For this moment, let us
+@%suppose that it has been installed on localhost.
+@%
+@%
+@%
+@%
+@%@% \subsubsection{Installation of the spotlight server}
+@%@% \label{sec:spotlightinstall}
+@%
+@%@% Itziar Aldabe (\href{mailto:itziar.aldabe@@ehu.es}) wrote:
+@%@% 
+@%@% \begin{quotation}
+@%@% The NED module works for English, Spanish, Dutch and Italian. The
+@%@% module returns multiple candidates and correspondences for all the
+@%@% languages. If you want to integrate it in your Dutch or Italian
+@%@% pipeline, you will need:
+@%@% 
+@%@% \begin{enumerate}
+@%@% \item The jar file with the dbpedia-spotlight server. You need the
+@%@%   version that Aitor developed in order to correctly use the "candidates"
+@%@%   option. You can copy it from the English VM. The jar file name is
+@%@%   \verb|dbpedia-spotlight-0.7-jar-with-dependencies-candidates.jar|
+@%@% \item The Dutch/Italian model for the dbpedia-spotlight. You can download them from:
+@%@%     \href{http://spotlight.sztaki.hu/downloads/}
+@%@% \item The jar file with the NED module:
+@%@%     \verb|ixa-pipe-ned-1.0.jar|. You can copy it from the English VM
+@%@%     too.
+@%@% \item The file: \verb|wikipedia-db.v1.tar.gz|. You can download it
+@%@%   from:
+@%@%   \href{http://ixa2.si.ehu.es/ixa-pipes/models/wikipedia-db.v1.tar.gz}. This
+@%@%   file contains the required information to do the mappings between
+@%@%   the wikipedia-entries. The zip file contains three files:
+@%@%   wikipedia-db, wikipedia-db.p and wikipedia-db.t
+@%@% \end{enumerate}
+@%@% 
+@%@% To start the dbPeadia server:
+@%@%     Italian server: java -jar -Xmx8g dbpedia-spotlight-0.7-jar-with-dependencies-candidates.jar it http://localhost:2050/rest 
+@%@%     Dutch server:  java -jar -Xmx8g dbpedia-spotlight-0.7-jar-with-dependencies-candidates.jar nl http://localhost:2060/rest 
+@%@% 
+@%@%     We set 8Gb for the English server, but the Italian and Dutch spotlight will require less memory. 
+@%@% 
+@%@% 
+@%@% 
+@%@%     To run the NED module
+@%@% 
+@%@%     Italian:
+@%@%     cat file.naf | java -jar ixa-pipe-ned-1.0.jar -p 2050 -e candidates -i $dir/wikipedia-db -n itEn
+@%@% 
+@%@%     Dutch:
+@%@%     cat file.naf | java -jar ixa-pipe-ned-1.0.jar -p 2060 -e candidates -i $dir/wikipedia-db -n nlEn
+@%@% 
+@%@%     where $dir refers to the directory the wikipedia-db* files are. 
+@%@% 
+@%@% Please, let me know if something is not clear or something doesn't work properly.
+@%@% 
+@%@% Regards,
+@%@% Itziar
+@%@% \end{quotation}
+@%
+@%
+@%
+@%\subsubsection{Module}
+@%\label{sec:ned-module}
+@%
+@%@d install the \NED{} module @{@%
+@%cp m4_asnapshotroot/m4_neddir/m4_nedjar m4_ajardir/
+@%mkdir -p m4_amoddir/m4_neddir
+@%cd m4_amoddir/m4_neddir
+@%wget http://ixa2.si.ehu.es/ixa-pipes/models/wikipedia-db.v1.tar.gz
+@%tar -xzf wikipedia-db.v1.tar.gz
+@%@| @}
+@%
+@%
+@%\subsubsection{Script}
+@%\label{sec:nedscript}
+@%
+@%@o m4_bindir/m4_nedscript @{@%
+@%#!/bin/bash
+@%ROOT=m4_aprojroot
+@%JARDIR=m4_ajardir
+@%@< check/start the spotlight server @>
+@%cat | java -jar \$JARDIR/m4_nedjar  -p 2060 -e candidates -i m4_amoddir/m4_neddir/wikipedia-db -n nlEn
+@%@| @}
+@%
+@%
+@%@d make scripts executable @{@%
+@%chmod 775  m4_bindir/m4_nedscript
+@%@| @}
+@%
+@%
+@%
+@%\subsection{Ontotagger}
+@%\label{sec:onto}
+@%
+@%We do not yet have a source-repository of the Ontotagger module. Therefore,
+@%install from a snapshot on Lisa.
+@%
+@%\subsubsection{Module}
+@%\label{sec:ontotagger-module}
+@%
+@%@d install the onto module @{@%
+@%@%cp -r m4_asnapshotroot/m4_ontodir m4_amoddir/
+@%cp -r m4_aprojroot/m4_snapshotdir/m4_ontodir m4_amoddir/
+@%chmod -R o+r m4_amoddir
+@%@| @}
+@%
+@%
+@%\subsubsection{Script}
+@%\label{sec:ontoscript}
+@%
+@%@o m4_bindir/m4_ontoscript @{@%
+@%#!/bin/bash
+@%ROOT=m4_aprojroot
+@%ONTODIR=m4_amoddir/m4_ontodir
+@%JARDIR=\$ONTODIR/lib
+@%RESOURCESDIR=\$ONTODIR/resources
+@%PREDICATEMATRIX="\$RESOURCESDIR/PredicateMatrix.v1.1/PredicateMatrix.v1.1.role.nl-1.merged"
+@%GRAMMATICALWORDS="\$RESOURCESDIR/grammaticals/Grammatical-words.nl"
+@%TMPFIL=`mktemp -t stap6.XXXXXX`
+@%cat >$TMPFIL
+@%
+@%CLASSPATH=\$JARDIR/ontotagger-1.0-jar-with-dependencies.jar
+@%JAVASCRIPT=eu.kyotoproject.main.KafPredicateMatrixTagger
+@%
+@%
+@%@% JAVA_ARGS="-Xmx1812m"
+@%@% JAVA_ARGS=\$JAVA_ARGS " -cp \$JARDIR/ontotagger-1.0-jar-with-dependencies.jar"
+@%@% JAVA_ARGS=\$JAVA_ARGS " eu.kyotoproject.main.KafPredicateMatrixTagger"
+@%JAVA_ARGS="--mappings \"fn;pb;nb\" "
+@%JAVA_ARGS="\$JAVA_ARGS  --key odwn-eq"
+@%JAVA_ARGS="\$JAVA_ARGS  --version 1.1"
+@%JAVA_ARGS="\$JAVA_ARGS  --predicate-matrix \$PREDICATEMATRIX"
+@%JAVA_ARGS="\$JAVA_ARGS  --grammatical-words \$GRAMMATICALWORDS"
+@%JAVA_ARGS="\$JAVA_ARGS  --naf-file \$TMPFIL"
+@%java -Xmx1812m -cp \$CLASSPATH \$JAVASCRIPT \$JAVA_ARGS
+@%
+@%@% @< onto javacommand @>
+@%@% java \$JAVA_ARGS
+@%@% java -Xmx1812m -cp $JARDIR/ontotagger-1.0-jar-with-dependencies.jar \
+@%@%      eu.kyotoproject.main.KafPredicateMatrixTagger \
+@%@%      --mappings "fn;pb;nb" --key odwn-eq --version 1.1 \
+@%@%      --predicate-matrix \
+@%@%        "\$RESOURCESDIR/PredicateMatrix.v1.1/PredicateMatrix.v1.1.role.nl-1.merged" \ 
+@%@%        --grammatical-words \
+@%@%      "\$RESOURCESDIR/grammaticals/Grammatical-words.nl" \
+@%@%       --naf-file $TMPFIL 
+@%rm -rf \$TMPFIL
+@%
+@%@| @}
+@%
+@%
+@%@% The Java command for the onto-tagger is very long. I tried to make it
+@%@% more readable and could only come up with the following method:
+@%@% 
+@%@% @d onto javacommand @{java -Xmx1812m @| @}
+@%@% @d onto javacommand @{-cp \$CLASSPATH @| @}
+@%@% @d onto javacommand @{\$JAVASCRIPT  @| @}
+@%@% @d onto javacommand @{--mappings "fn;pb;nb" @| @}
+@%@% @d onto javacommand @{ --key odwn-eq @| @}
+@%@% @d onto javacommand @{--version 1.1 @| @}
+@%@% @d onto javacommand @{--predicate-matrix \$PREDICATEMATRIX @| @}
+@%@% @d onto javacommand @{ --grammatical-words "\$GRAMMATICALWORDS" @| @}
+@%@% @d onto javacommand @{--naf-file $TMPFIL
+@%@% @| @}
+@%
+@%
+@%
+@%@d make scripts executable @{@%
+@%chmod 775  m4_bindir/m4_ontoscript
+@%@| @}
+@%
+@%
+@%
+@%\subsection{Heideltime}
+@%\label{sec:heideltime}
+@%
+@%\subsubsection{Module}
+@%\label{sec:heideltimmodule}
+@%
+@%@d install the heideltime module @{@%
+@%@< install from github @(heideltime@,m4_heideldir@,m4_heidelgit@) @>
+@%@< adapt heideltime's config.props @>
+@%
+@%@| @}
+@%
+@%@d adapt heideltime's config.props @{@%
+@%CONFIL=m4_heideldir/config.props
+@%tempfil=`mktemp -t heideltmp.XXXXXX`
+@%mv $CONFIL \$tempfil
+@%MODDIR=m4_amoddir
+@%TREETAGDIR=m4_treetagdir
+@%AWKCOMMAND='/^treeTaggerHome/ {\$0="treeTaggerHome = m4_amoddir/m4_treetagdir"}; {print}'
+@%gawk "\$AWKCOMMAND" \$tempfil >\$CONFIL
+@%@| @}
+@%
+@%
+@%\subsubsection{Script}
+@%\label{sec:heideltime-script}
+@%
+@%@o m4_bindir/m4_heidelscript @{@%
+@%#!/bin/bash
+@%ROOT=m4_aprojroot
+@%HEIDELDIR=m4_amoddir/m4_heideldir
+@%TEMPDIR=`mktemp -t -d heideltmp.XXXXXX`
+@%cd $HEIDELDIR
+@%@< set pythonpath @>
+@%iconv -t utf-8//IGNORE | python \$HEIDELDIR/HeidelTime_NafKaf.py \$HEIDELDIR/heideltime-standalone/ \$TEMPDIR
+@%@| @}
+@%
+@%@d make scripts executable @{@%
+@%chmod 775  m4_bindir/m4_heidelscript
+@%@| @}
+@%
+@%\subsection{Semantic Role labelling}
+@%\label{sec:SRL}
+@%
+@%\subsubsection{Module}
+@%\label{sec:SRL-module}
+@%
+@%@d install the srl module @{@%
+@%@< install from github @(srl@,m4_srldir@,m4_srlgit@) @>
+@%@%cp -r m4_asnapshotroot/m4_srldir m4_amoddir/
+@%@| @}
+@%
+@%
+@%\subsubsection{Script}
+@%\label{sec:SRLscript}
+@%
+@%
+@%First:
+@%\begin{enumerate}
+@%\item set the correct environment. The module needs python and timble.
+@%\item  create a tempdir and in that dir a file to store the input and a (\textsc{scv}) file with the feature-vector.
+@%\end{enumerate}
+@%
+@%@o m4_bindir/m4_srlscript @{@%
+@%#!/bin/bash
+@%ROOT=m4_aprojroot
+@%SRLDIR=m4_amoddir/m4_srldir
+@%TEMPDIR=`mktemp -d -t SRLTMP.XXXXXX`
+@%cd \$SRLDIR
+@%@< set local bin directory @>
+@%@< set pythonpath @>
+@%INPUTFILE=$TEMPDIR/inputfile
+@%FEATUREVECTOR=$TEMPDIR/csvfile
+@%TIMBLOUTPUTFILE=$TEMPDIR/timblpredictions
+@%@| @}
+@%
+@%Create a feature-vector.
+@%
+@%@o m4_bindir/m4_srlscript @{@%
+@%cat | tee  \$INPUTFILE | python nafAlpinoToSRLFeatures.py > \$FEATUREVECTOR
+@%@| @}
+@%
+@%Run the trained model on the feature-vector.
+@%
+@%@o m4_bindir/m4_srlscript @{@%
+@%timbl -mO:I1,2,3,4 -i e-mags_mags_press_newspapers.wgt -t \$FEATUREVECTOR -o \$TIMBLOUTPUTFILE >/dev/null 2>/dev/null
+@%@| @}
+@%
+@%Insert the \textsc{srl} values into the \textsc{naf} file.
+@%
+@%@o m4_bindir/m4_srlscript @{@%
+@%python timblToAlpinoNAF.py \$INPUTFILE \$TIMBLOUTPUTFILE
+@%@| @}
+@%
+@%
+@%Clean up.
+@%
+@%@o m4_bindir/m4_srlscript @{@%
+@%rm -rf \$TEMPDIR
+@%@| @}
+@%
+@%
+@%@d make scripts executable @{@%
+@%chmod 775  m4_bindir/m4_srlscript
+@%@| @}
 
 
 
 \section{Utilities}
 \label{sec:utilities}
 
-\subsection{Test script}
+\subsection{Test the pipeline}
 \label{sec:testscript}
+
+To test the pipeline we provide a testfile in a test directory and a testscript.
+
+The test file:
+
+@o m4_testdir/test.raw.naf @{@%
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<NAF version="v3" xml:lang="en">
+  <nafHeader>
+    <public publicId="10_13ecbplus.xml"/>
+  </nafHeader>
+  <raw>http : / / www . ocregister . com / angels / million - 416271 -
+    http - red . html Report : Red Sox offer Teixeira $200 million
+    December 15th , 2008 , 7 : 35 am Dan Patrick reported on his show on
+    AM 570 that the Boston Red Sox have made first baseman Mark Teixeira
+    an eight - year , $200 million offer .
+    If so , that blows the reported eight - year , $160 million offers
+    by the Angels and the Washington Nationals out of the water .
+    Patrick said Monday morning : "If it's true they're offering $200
+    million to a career . 290 hitter , it'll be interesting to see
+    what the Angels do . " 
+    He then speculated the Angels might turn their interest to Manny  Ramirez .
+    The Boston Herald's Michael Silverman wrote in his Monday column
+    the Red Sox offer was expected to be in the range of $145 million
+    to $175 million , possibly more .
+    He also noted that it is rare for Boston to extend contracts to
+    players that go to their 36th birthdays , with the exceptions of
+    Jason Varitek's just - expired deal and Mike Lowell's contract .
+    Teixeira will be 29 in April .</raw>
+</NAF>
+@| @}
+
+
+
 
 The following script pushes a single sentence through the modules of
 the pipeline.
 
 @o m4_bindir/test @{@%
 #!/bin/bash
-ROOT=/home/huygen/projecten/pipelines/dutch-nlp-modules-on-Lisa
+ROOT=m4_aprojroot
 TESTDIR=$ROOT/test
 BIND=$ROOT/bin
-mkdir $TESTDIR
 cd $TESTDIR
-cat $ROOT/nuweb/testin.naf | $BIND/tok > $TESTDIR/test.tok.naf
-cat test.tok.naf | $BIND/mor > $TESTDIR/test.mor.naf
-cat test.mor.naf | $BIND/alpinohack > $TESTDIR/test.alh.naf
-cat test.alh.naf | $BIND/nerc > $TESTDIR/test.nerc.naf
-cat $TESTDIR/test.nerc.naf | $BIND/wsd > $TESTDIR/test.wsd.naf
-cat $TESTDIR/test.wsd.naf | $BIND/onto > $TESTDIR/test.onto.naf
-cat $TESTDIR/test.wsd.naf | $BIND/lu2synset > $TESTDIR/test.l2s.naf
-cat $TESTDIR/test.l2s.naf | $BIND/ned > $TESTDIR/test.ned.naf
-cat $TESTDIR/test.ned.naf | $BIND/heideltime > $TESTDIR/test.times.naf
-cat $TESTDIR/test.times.naf | $BIND/srl  > $TESTDIR/test.srl.naf
+@%cat $TESTDIR/test.raw.naf | $BIND/m4_tokenizerscript > $TESTDIR/test.tok.naf
+@%cat test.tok.naf | $BIND/pos > $TESTDIR/test.pos.naf
+@%cat test.pos.naf | $BIND/m4_mwtaggerscript > $TESTDIR/test.mw.naf
+@%cat $TESTDIR/test.mw.naf | $BIND/m4_nercscript > $TESTDIR/test.nerc.naf
+@%cat $TESTDIR/test.nerc.naf | $BIND/m4_opiniscript > $TESTDIR/test.opini.naf
+cat $TESTDIR/test.nerc.naf | $BIND/m4_cparsescript > $TESTDIR/test.cpar.naf
+@%cat test.tok.naf | $BIND/mor > $TESTDIR/test.mor.naf
+@%cat test.mor.naf | $BIND/alpinohack > $TESTDIR/test.alh.naf
+@%cat $TESTDIR/test.nerc.naf | $BIND/wsd > $TESTDIR/test.wsd.naf
+@%cat $TESTDIR/test.wsd.naf | $BIND/onto > $TESTDIR/test.onto.naf
+@%cat $TESTDIR/test.wsd.naf | $BIND/lu2synset > $TESTDIR/test.l2s.naf
+@%cat $TESTDIR/test.l2s.naf | $BIND/ned > $TESTDIR/test.ned.naf
+@%cat $TESTDIR/test.ned.naf | $BIND/heideltime > $TESTDIR/test.times.naf
+@%cat $TESTDIR/test.times.naf | $BIND/srl  > $TESTDIR/test.srl.naf
 
 @% #!/bin/bash
 @% ROOT=m4_aprojroot
@@ -1165,160 +1503,160 @@ chmod 775  m4_bindir/test
 @| @}
 
 
-\subsection{Treetagger}
-\label{sec:installtreetagger}
-
-\subsubsection{Module}
-\label{sec:mdule}
-
-Installation goes as follows (See
-\href{http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/}{Treetagger's homepage}:
-
-\begin{enumerate}
-\item Download and unpack the treetagger tarball. This generates the
-  subdirectories \verb|bin|, \verb|cmd| and \verb|doc|
-\item Download and unpack the tagger-scripts tarball
-\end{enumerate}
-
-The location where treetager comes from and the location where it is going to reside:
-
-@d install the treetagger utility @{@%
-TREETAGDIR=m4_treetagdir
-TREETAG_BASIS_URL=m4_treetag_base_url
-TREETAGURL=m4_treetag_base_url
-@| @}
-
-The source tarball, scripts and the installation-script:
-
-@d install the treetagger utility @{@%
-TREETAGSRC=m4_treetagsrc
-TREETAGSCRIPTS=m4_treetagger_scripts
-TREETAG_INSTALLSCRIPT=m4_treetagger_installscript
-@| @}
-
-Parametersets:
-
-@d install the treetagger utility @{@%
-DUTCHPARS_UTF_GZ=m4_treetag_dutchparms       
-DUTCH_TAGSET=m4_treetag_dutch_tagset 
-DUTCHPARS_2_GZ=m4_treetag_dutchparms2
-@| @}
-
-Download everything in the target directory:
-
-@d install the treetagger utility @{@%
-mkdir -p m4_amoddir/\$TREETAGDIR
-cd m4_amoddir/\$TREETAGDIR
-wget \$TREETAGURL/\$TREETAGSRC
-wget \$TREETAGURL/\$TREETAGSCRIPTS
-wget \$TREETAGURL/\$TREETAG_INSTALLSCRIPT
-wget \$TREETAGURL/\$DUTCHPARS_UTF_GZ
-wget \$TREETAGURL/\$DUTCH_TAGSET    
-wget \$TREETAGURL/\$DUTCHPARS_2_GZ  
-@| @}
-
-Run the install-script:
-
-@d install the treetagger utility @{@%
-chmod 775 \$TREETAG_INSTALLSCRIPT
-./\$TREETAG_INSTALLSCRIPT
-@| @}
-
-Make the treetagger utilities available for everbody.
-
-@d install the treetagger utility @{@%
-chmod o+x m4_amoddir/\$TREETAGDIR/bin
-chmod o+x m4_amoddir/\$TREETAGDIR/cmd
-chmod o+x m4_amoddir/\$TREETAGDIR/doc
-chmod o+x m4_amoddir/\$TREETAGDIR/lib
-./\$TREETAG_INSTALLSCRIPT
-@| @}
-
-
-
-Remove the tarballs:
-
-@d install the treetagger utility @{@%
-rm \$TREETAGSRC
-rm \$TREETAGSCRIPTS
-rm \$TREETAG_INSTALLSCRIPT
-rm \$DUTCHPARS_UTF_GZ
-rm \$DUTCH_TAGSET    
-rm \$DUTCHPARS_2_GZ
-@| @}
-
-
-
-
-\subsection{Timbl and ticcutils}
-\label{sec:timbl}
-
-
-
-\subsubsection{Module}
-\label{sec:timblmodule}
-
-Timbl and ticcutils are installed from their source-tarballs. The
-installation is not (yet?) completely reproducibe because it uses the currently
-available c-compiler. Installation involves:
-
-\begin{enumerate}
-\item Download the tarball in a temporary directory.
-\item Unpack the tarball.
-\item cd to the unpacked directory and perform \verb|./configure|,
-  \verb|make| and \verb|make install|. Note the argument that causes
-  the files to be installed in the \verb|usrlocal| subdirectory of the
-  modules directory.
-\end{enumerate}
-
-@d install the ticcutils utility @{@%
-URL=m4_ticcurl
-TARB=m4_ticcsrc
-DIR=m4_ticcdir
-@< unpack ticcutils or timbl @>
-@| @}
-
-@d install the timbl utility @{@%
-URL=m4_timblurl
-TARB=m4_timblsrc
-DIR=m4_timbldir
-@< unpack ticcutils or timbl @>
-@| @}
-
-
-@d unpack ticcutils or timbl @{@%
-SUCCES=0
-ticbeldir=`mktemp -t -d tickbel.XXXXXX`
-cd \$ticbeldir
-wget \$URL
-SUCCES=\$?
-if
-  [ \$SUCCES -eq 0 ]
-then
-  tar -xzf \$TARB
-  SUCCES=\$?
-  rm -rf \$TARB
-fi
-if
-  [ \$SUCCES -eq 0 ]
-then
-  cd \$DIR
-  ./configure --prefix=m4_ausrlocaldir
-  make
-  make install
-fi
-cd m4_aprojroot
-rm -rf \$ticbeldir
-if
-  [ \$SUCCES -eq 0 ]
-then
-  @< logmess @(Installed \$DIR@) @>
-else
-  @< logmess @(NOT installed \$DIR@) @>
-fi
-@| @}
-
-
+@%\subsection{Treetagger}
+@%\label{sec:installtreetagger}
+@%
+@%\subsubsection{Module}
+@%\label{sec:mdule}
+@%
+@%Installation goes as follows (See
+@%\href{http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/}{Treetagger's homepage}:
+@%
+@%\begin{enumerate}
+@%\item Download and unpack the treetagger tarball. This generates the
+@%  subdirectories \verb|bin|, \verb|cmd| and \verb|doc|
+@%\item Download and unpack the tagger-scripts tarball
+@%\end{enumerate}
+@%
+@%The location where treetager comes from and the location where it is going to reside:
+@%
+@%@d install the treetagger utility @{@%
+@%TREETAGDIR=m4_treetagdir
+@%TREETAG_BASIS_URL=m4_treetag_base_url
+@%TREETAGURL=m4_treetag_base_url
+@%@| @}
+@%
+@%The source tarball, scripts and the installation-script:
+@%
+@%@d install the treetagger utility @{@%
+@%TREETAGSRC=m4_treetagsrc
+@%TREETAGSCRIPTS=m4_treetagger_scripts
+@%TREETAG_INSTALLSCRIPT=m4_treetagger_installscript
+@%@| @}
+@%
+@%Parametersets:
+@%
+@%@d install the treetagger utility @{@%
+@%DUTCHPARS_UTF_GZ=m4_treetag_dutchparms       
+@%DUTCH_TAGSET=m4_treetag_dutch_tagset 
+@%DUTCHPARS_2_GZ=m4_treetag_dutchparms2
+@%@| @}
+@%
+@%Download everything in the target directory:
+@%
+@%@d install the treetagger utility @{@%
+@%mkdir -p m4_amoddir/\$TREETAGDIR
+@%cd m4_amoddir/\$TREETAGDIR
+@%wget \$TREETAGURL/\$TREETAGSRC
+@%wget \$TREETAGURL/\$TREETAGSCRIPTS
+@%wget \$TREETAGURL/\$TREETAG_INSTALLSCRIPT
+@%wget \$TREETAGURL/\$DUTCHPARS_UTF_GZ
+@%wget \$TREETAGURL/\$DUTCH_TAGSET    
+@%wget \$TREETAGURL/\$DUTCHPARS_2_GZ  
+@%@| @}
+@%
+@%Run the install-script:
+@%
+@%@d install the treetagger utility @{@%
+@%chmod 775 \$TREETAG_INSTALLSCRIPT
+@%./\$TREETAG_INSTALLSCRIPT
+@%@| @}
+@%
+@%Make the treetagger utilities available for everbody.
+@%
+@%@d install the treetagger utility @{@%
+@%chmod o+x m4_amoddir/\$TREETAGDIR/bin
+@%chmod o+x m4_amoddir/\$TREETAGDIR/cmd
+@%chmod o+x m4_amoddir/\$TREETAGDIR/doc
+@%chmod o+x m4_amoddir/\$TREETAGDIR/lib
+@%./\$TREETAG_INSTALLSCRIPT
+@%@| @}
+@%
+@%
+@%
+@%Remove the tarballs:
+@%
+@%@d install the treetagger utility @{@%
+@%rm \$TREETAGSRC
+@%rm \$TREETAGSCRIPTS
+@%rm \$TREETAG_INSTALLSCRIPT
+@%rm \$DUTCHPARS_UTF_GZ
+@%rm \$DUTCH_TAGSET    
+@%rm \$DUTCHPARS_2_GZ
+@%@| @}
+@%
+@%
+@%
+@%
+@%\subsection{Timbl and ticcutils}
+@%\label{sec:timbl}
+@%
+@%
+@%
+@%\subsubsection{Module}
+@%\label{sec:timblmodule}
+@%
+@%Timbl and ticcutils are installed from their source-tarballs. The
+@%installation is not (yet?) completely reproducibe because it uses the currently
+@%available c-compiler. Installation involves:
+@%
+@%\begin{enumerate}
+@%\item Download the tarball in a temporary directory.
+@%\item Unpack the tarball.
+@%\item cd to the unpacked directory and perform \verb|./configure|,
+@%  \verb|make| and \verb|make install|. Note the argument that causes
+@%  the files to be installed in the \verb|usrlocal| subdirectory of the
+@%  modules directory.
+@%\end{enumerate}
+@%
+@%@d install the ticcutils utility @{@%
+@%URL=m4_ticcurl
+@%TARB=m4_ticcsrc
+@%DIR=m4_ticcdir
+@%@< unpack ticcutils or timbl @>
+@%@| @}
+@%
+@%@d install the timbl utility @{@%
+@%URL=m4_timblurl
+@%TARB=m4_timblsrc
+@%DIR=m4_timbldir
+@%@< unpack ticcutils or timbl @>
+@%@| @}
+@%
+@%
+@%@d unpack ticcutils or timbl @{@%
+@%SUCCES=0
+@%ticbeldir=`mktemp -t -d tickbel.XXXXXX`
+@%cd \$ticbeldir
+@%wget \$URL
+@%SUCCES=\$?
+@%if
+@%  [ \$SUCCES -eq 0 ]
+@%then
+@%  tar -xzf \$TARB
+@%  SUCCES=\$?
+@%  rm -rf \$TARB
+@%fi
+@%if
+@%  [ \$SUCCES -eq 0 ]
+@%then
+@%  cd \$DIR
+@%  ./configure --prefix=m4_ausrlocaldir
+@%  make
+@%  make install
+@%fi
+@%cd m4_aprojroot
+@%rm -rf \$ticbeldir
+@%if
+@%  [ \$SUCCES -eq 0 ]
+@%then
+@%  @< logmess @(Installed \$DIR@) @>
+@%else
+@%  @< logmess @(NOT installed \$DIR@) @>
+@%fi
+@%@| @}
+@%
+@%
 
 \subsection{Logging}
 \label{sec:logging}

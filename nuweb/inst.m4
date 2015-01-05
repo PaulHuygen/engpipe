@@ -14,6 +14,9 @@ m4_define(m4_aprojroot, m4_regexp(m4_esyscmd(pwd), `\(^[a-zA-Z0-9/-]+\)/nuweb$',
 m4_define(m4_projroot, `..')m4_dnl
 m4_define(m4_abindir, m4_aprojroot`/bin')m4_dnl     Binaries
 m4_define(m4_bindir, m4_projroot`/bin')m4_dnl     Binaries
+m4_define(m4_abindir, m4_aprojroot`/bin')m4_dnl     Binaries
+m4_define(m4_testdir, m4_projroot`/test')m4_dnl     Binaries
+m4_define(m4_atestdir, m4_aprojroot`/test')m4_dnl     Binaries
 m4_define(m4_amoddir, m4_aprojroot`/modules')m4_dnl     Modules
 m4_define(m4_moddir, m4_projroot`/modules')m4_dnl     Modules
 m4_define(m4_aenvdir, m4_aprojroot`/env')m4_dnl     Program environment
@@ -30,6 +33,15 @@ m4_define(m4_htmldir, m4_projroot/nuweb/html)m4_dnl
 m4_define(m4_ahtmldir, m4_aprojroot/nuweb/html)m4_dnl
 m4_define(m4_htmltarget, m4_htmldir/`'m4_progname.html`')m4_dnl
 m4_define(m4_pythonmoddir, m4_amoddir/python)m4_dnl
+m4_dnl
+m4_dnl Programming environment
+m4_dnl
+m4_define(m4_javatarball, server-jre-7u72-linux-x64.tar.gz)m4_dnl
+m4_define(m4_javatarballurl, http://www.oracle.com/technetwork/java/javase/downloads/server-jre7-downloads-1931105.html)m4_dnl
+m4_define(m4_javadir, jdk1.7.0_72)m4_dnl
+
+
+
 m4_dnl
 m4_dnl Module installer
 m4_dnl
@@ -56,6 +68,32 @@ m4_define(m4_tokenizerdir, ixa-pipe-tok)m4_dnl  Subdir. of modules
 m4_define(m4_tokenizerjar, ixa-pipe-tok-1.5.3.jar)m4_dnl
 m4_define(m4_tokenizerscript, tok)m4_dnl
 m4_dnl
+m4_dnl Pos-tagger
+m4_dnl
+m4_define(m4_postaggerdir, EHU-pos)m4_dnl  Subdir. of modules
+m4_define(m4_postaggerjar, ixa-pipe-tok-1.5.3.jar)m4_dnl
+m4_define(m4_postaggerscript, pos)m4_dnl
+m4_dnl
+m4_dnl Multi-word tagger
+m4_dnl
+m4_define(m4_mwtaggerdir, VUA-multiwordtagger)m4_dnl  Subdir. of modules
+m4_define(m4_mwtaggerjar, )m4_dnl
+m4_define(m4_mwtaggerscript, mw)m4_dnl
+m4_dnl
+m4_dnl Constituent parser
+m4_dnl
+m4_define(m4_parsedir, EHU-parse)m4_dnl  Subdir. of modules
+m4_define(m4_parsejar, ixa-pipe-parse-1.0.0.jar)m4_dnl
+m4_define(m4_cparsescript, cparse)m4_dnl
+m4_dnl
+m4_dnl NERC
+m4_dnl
+m4_define(m4_nercdir, EHU-nerc)m4_dnl  Subdir. of modules
+m4_define(m4_nercjar, ixa-pipe-nerc-1.1.0.jar)m4_dnl
+m4_define(m4_nercscript, nerc)m4_dnl
+m4_define(m4_nercpropscript, en-brown-clark-600-conll03-testa.prop)m4_dnl
+
+m4_dnl
 m4_dnl Morphosyntactic parser
 m4_define(m4_morphpargit, https://github.com/cltl/morphosyntactic_parser_nl.git)m4_dnl  Subdir. of modules
 m4_define(m4_morphpardir, morphosyntactic_parser_nl)m4_dnl  Subdir. of modules
@@ -66,10 +104,6 @@ m4_dnl
 m4_define(m4_alpinohackdir, alpinohack)m4_dnl
 m4_define(m4_alpinohackscript, alpinohack)m4_dnl
 m4_define(m4_alpinohackpythonscript, clean_hack.py)m4_dnl
-m4_dnl NERC
-m4_define(m4_nercjar, ixa-pipe-nerc-1.1.0.jar)m4_dnl
-m4_define(m4_nercdir, nerc)m4_dnl  Subdir. of modules
-m4_define(m4_nercscript, nerc)m4_dnl
 m4_dnl
 m4_dnl LU2SYN
 m4_dnl
@@ -120,8 +154,9 @@ m4_define(m4_evcorefscript, evcoref)m4_dnl
 m4_dnl
 m4_dnl Opinion-miner
 m4_define(m4_opinisrc, /dev/null )m4_dnl  Subdir. of modules
-m4_define(m4_opinidir, opinimin)m4_dnl  Subdir. of modules
+m4_define(m4_opinidir, VUA-opinion-miner)m4_dnl  Subdir. of modules
 m4_define(m4_opiniscript, opinimin)m4_dnl
+m4_define(VUApylibgithub, )m4_dnl
 m4_dnl
 m4_dnl Framenet Semantic Role Labeler
 m4_define(m4_fsrlsrc, /dev/null )m4_dnl  Subdir. of modules
@@ -154,6 +189,10 @@ m4_dnl
 m4_dnl KafNafParserPy
 m4_define(m4_kafnafgit, https://github.com/cltl/KafNafParserPy.git)m4_dnl
 m4_define(m4_kafnafdir, python/KafNafParserPy)m4_dnl
+m4_dnl
+m4_dnl VUA_pylib
+m4_define(m4_VUA_pylibgit, https://github.com/cltl/VUA_pylib.git)m4_dnl
+m4_define(m4_VUA_pylibdir, python/VU_pylib)m4_dnl
 m4_dnl
 m4_dnl Treetagger
 m4_define(m4_treetag_base_url, `http://www.cis.uni-muenchen.de/%7Eschmid/tools/TreeTagger/data/')m4_dnl<
